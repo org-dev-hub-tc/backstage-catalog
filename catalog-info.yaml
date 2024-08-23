@@ -9,44 +9,44 @@ spec:
   type: team
   profile:
     displayName: "Dev Team"
-    email: dev-team@globexcorp.com
+    email: dev-team@flightscorp.com
   parent: my-org
   children: []
 ---
 apiVersion: backstage.io/v1alpha1
 kind: System
 metadata:
-  name: globex-system
+  name: flights-system
   tags:
-    - globexcorp
+    - flightscorp
 spec:
   owner: dev-team  
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Resource
 metadata:
-  name: globex-database
-  description: "Globex Database"
+  name: flights-database
+  description: "flights Database"
   annotations:
     backstage.io/managed-by-location: "url:https://github.com/my-org/my-repo/blob/master/database.yaml"
 spec:
   type: database
   owner: dev-team
   lifecycle: production
-  system: globex-system
+  system: flights-system
 ---
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
-  name: globex-api
-  description: "Globex API"
+  name: flights-api
+  description: "flights API"
   annotations:
     backstage.io/managed-by-location: "url:https://github.com/my-org/my-repo/blob/master/my-grpc-api.yaml"
 spec:
   type: grpc
   lifecycle: production
   owner: dev-team
-  system: globex-system
+  system: flights-system
   definition: |
     syntax = "proto3";
     package myorg.mygrpcapi;
@@ -63,31 +63,31 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: globex-backend
-  description: "Globex Backend Service"
+  name: flights-backend
+  description: "flights Backend Service"
   annotations:
     backstage.io/managed-by-location: "url:https://github.com/my-org/my-repo/blob/master/my-backend.yaml"
 spec:
   type: service
   lifecycle: production
   owner: dev-team
-  system: globex-system
+  system: flights-system
   dependsOn:
-    - resource:globex-database
+    - resource:flights-database
   providesApis:
-    - globex-api
+    - flights-api
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: globex-frontend
-  description: "Globex Frontend"
+  name: flights-frontend
+  description: "flights Frontend"
   annotations:
     backstage.io/managed-by-location: "url:https://github.com/my-org/my-repo/blob/master/my-frontend.yaml"
 spec:
   type: service
   lifecycle: production
   owner: dev-team
-  system: globex-system
+  system: flights-system
   consumesApis:
-    - globex-api
+    - flights-api
