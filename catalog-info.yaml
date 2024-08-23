@@ -4,90 +4,130 @@ metadata:
   name: dev-team
   description: "Dev Team"
   annotations:
-    backstage.io/managed-by-location: "url:https://github.com/my-org/my-repo/blob/master/dev-team.yaml"
+    backstage.io/managed-by-location: "url:https://github.com/org-dev-hub-tc/backstage-catalog/blob/main/dev-team.yaml"
 spec:
   type: team
   profile:
     displayName: "Dev Team"
-    email: dev-team@globexcorp.com
+    email: dev-team@flightscorp.com
   parent: my-org
   children: []
 ---
 apiVersion: backstage.io/v1alpha1
 kind: System
 metadata:
-  name: globex-system
+  name: flights-system
   tags:
-    - globexcorp
+    - flightscorp
 spec:
   owner: dev-team  
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Resource
 metadata:
-  name: globex-database
-  description: "Globex Database"
+  name: flights-database
+  description: "flights Database"
   annotations:
-    backstage.io/managed-by-location: "url:https://github.com/my-org/my-repo/blob/master/database.yaml"
+    backstage.io/managed-by-location: "url:https://github.com/org-dev-hub-tc/backstage-catalog/blob/main/database.yaml"
 spec:
   type: database
   owner: dev-team
   lifecycle: production
-  system: globex-system
+  system: flights-system
 ---
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
-  name: globex-api
-  description: "Globex API"
+  name: flights-api
+  description: "flights API"
   annotations:
-    backstage.io/managed-by-location: "url:https://github.com/my-org/my-repo/blob/master/my-grpc-api.yaml"
+    backstage.io/managed-by-location: "url:https://github.com/org-dev-hub-tc/backstage-catalog/blob/main/my-grpc-api.yaml"
 spec:
-  type: grpc
+  type: openapi
   lifecycle: production
   owner: dev-team
-  system: globex-system
   definition: |
-    syntax = "proto3";
-    package myorg.mygrpcapi;
-    message MyRequest {
-      string query = 1;
-    }
-    message MyResponse {
-      string result = 1;
-    }
-    service MyGrpcApi {
-      rpc MyMethod (MyRequest) returns (MyResponse);
-    }
+    openapi: 3.0.0
+    info:
+      title: Flights API
+      version: 1.0.0
+      description: REST API for managing flights, and related data.
+    paths:
+      /flights:
+        get:
+          summary: Retrieve a list of flights
+          operationId: getFlights
+          responses:
+            '200':
+              description: A list of flights
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Flight'
+      /flight:
+        post:
+          summary: Create a new flight
+          operationId: createflight
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/flight'
+          responses:
+            '201':
+              description: flight created successfully
+    components:
+      schemas:
+        Flight:
+          type: object
+          properties:
+            id:
+              type: string
+            destination:
+              type: string
+            departureTime:
+              type: string
+        flight:
+          type: object
+          properties:
+            id:
+              type: string
+            flightId:
+              type: string
+            passengerName:
+              type: string
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: globex-backend
-  description: "Globex Backend Service"
+  name: flights-backend
+  description: "flights Backend Service"
   annotations:
-    backstage.io/managed-by-location: "url:https://github.com/my-org/my-repo/blob/master/my-backend.yaml"
+    backstage.io/managed-by-location: "url:https://github.com/org-dev-hub-tc/backstage-catalog/blob/main/my-backend.yaml"
 spec:
   type: service
   lifecycle: production
   owner: dev-team
-  system: globex-system
+  system: flights-system
   dependsOn:
-    - resource:globex-database
+    - resource:flights-database
   providesApis:
-    - globex-api
+    - flights-api
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: globex-frontend
-  description: "Globex Frontend"
+  name: flights-frontend
+  description: "flights Frontend"
   annotations:
-    backstage.io/managed-by-location: "url:https://github.com/my-org/my-repo/blob/master/my-frontend.yaml"
+    backstage.io/managed-by-location: "url:https://github.com/org-dev-hub-tc/backstage-catalog/blob/main/my-frontend.yaml"
 spec:
   type: service
   lifecycle: production
   owner: dev-team
-  system: globex-system
+  system: flights-system
   consumesApis:
-    - globex-api
+    - flights-api
