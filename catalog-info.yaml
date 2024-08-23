@@ -1,0 +1,93 @@
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: dev-team
+  description: "Dev Team"
+  annotations:
+    backstage.io/managed-by-location: "url:https://github.com/my-org/my-repo/blob/master/dev-team.yaml"
+spec:
+  type: team
+  profile:
+    displayName: "Dev Team"
+    email: dev-team@globexcorp.com
+  parent: my-org
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: globex-system
+  tags:
+    - globexcorp
+spec:
+  owner: dev-team  
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: globex-database
+  description: "Globex Database"
+  annotations:
+    backstage.io/managed-by-location: "url:https://github.com/my-org/my-repo/blob/master/database.yaml"
+spec:
+  type: database
+  owner: dev-team
+  lifecycle: production
+  system: globex-system
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: globex-api
+  description: "Globex API"
+  annotations:
+    backstage.io/managed-by-location: "url:https://github.com/my-org/my-repo/blob/master/my-grpc-api.yaml"
+spec:
+  type: grpc
+  lifecycle: production
+  owner: dev-team
+  system: globex-system
+  definition: |
+    syntax = "proto3";
+    package myorg.mygrpcapi;
+    message MyRequest {
+      string query = 1;
+    }
+    message MyResponse {
+      string result = 1;
+    }
+    service MyGrpcApi {
+      rpc MyMethod (MyRequest) returns (MyResponse);
+    }
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: globex-backend
+  description: "Globex Backend Service"
+  annotations:
+    backstage.io/managed-by-location: "url:https://github.com/my-org/my-repo/blob/master/my-backend.yaml"
+spec:
+  type: service
+  lifecycle: production
+  owner: dev-team
+  system: globex-system
+  dependsOn:
+    - resource:globex-database
+  providesApis:
+    - globex-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: globex-frontend
+  description: "Globex Frontend"
+  annotations:
+    backstage.io/managed-by-location: "url:https://github.com/my-org/my-repo/blob/master/my-frontend.yaml"
+spec:
+  type: service
+  lifecycle: production
+  owner: dev-team
+  system: globex-system
+  consumesApis:
+    - globex-api
